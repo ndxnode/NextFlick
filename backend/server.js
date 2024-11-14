@@ -1,80 +1,115 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const axios = require('axios')
+const axios = require('axios');
 require('dotenv').config();
-const MOVIE_API_KEY = process.env.TMDB_API_KEY;
+
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to the API'})
-});
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'Backend is working!' });
-});
-app.get('/api/popular-movies', async (req, res) => {
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/movie/popular?api_key=${MOVIE_API_KEY}`
-      );
-      res.json(response.data.results);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-app.get('/api/search', async (req, res) => {
-    const query = req.query.q;
-    try {
-        const response = await axios.get(
-        `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${query}`
-        );
-        res.json(response.data.results);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-// Get movie details
-app.get('/api/movie/:id', async (req, res) => {
-    const movieId = req.params.id;
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/movie/${movieId}?api_key=${MOVIE_API_KEY}`
-      );
-      res.json(response.data);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
-// Add these new endpoints
-app.get('/api/movie/:id/recommendations', async (req, res) => {
-  const movieId = req.params.id;
-  try {
-    const response = await axios.get(
-      `https://api.themoviedb.org/3/movie/${movieId}/recommendations?api_key=${MOVIE_API_KEY}`
-    );
-    res.json(response.data.results);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+// TMDB API Configuration
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const tmdbAxios = axios.create({
+  baseURL: TMDB_BASE_URL,
+  params: {
+    api_key: process.env.TMDB_API_KEY
   }
 });
 
+// TMDB API Routes
+app.get('/api/movies/trending', async (req, res) => {
+  try {
+    const response = await tmdbAxios.get('/trending/movie/week');
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching trending movies:', error.response?.data || error.message);
+    res.status(500).json({ 
+      error: 'Failed to fetch trending movies',
+      details: error.response?.data || error.message 
+    });
+  }
+});
+
+app.get('/api/movies/popular', async (req, res) => {
+  try {
+    const response = await tmdbAxios.get('/movie/popular');
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching popular movies:', error);
+    res.status(500).json({ error: 'Failed to fetch popular movies' });
+  }
+});
+
+app.get('/api/movies/top_rated', async (req, res) => {
+  try {
+    const response = await tmdbAxios.get('/movie/top_rated');
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching top rated movies:', error);
+    res.status(500).json({ error: 'Failed to fetch top rated movies' });
+  }
+});
+
+app.get('/api/movies/:id', async (req, res) => {
+  try {
+    const response = await tmdbAxios.get(`/movie/${req.params.id}`, {
+      params: {
+        append_to_response: 'videos,credits'
+      }
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching movie details:', error);
+    res.status(500).json({ error: 'Failed to fetch movie details' });
+  }
+});
+
+app.get('/api/search/movies', async (req, res) => {
+  try {
+    const { query } = req.query;
+    const response = await tmdbAxios.get('/search/movie', {
+      params: {
+        query,
+        include_adult: false
+      }
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error searching movies:', error);
+    res.status(500).json({ error: 'Failed to search movies' });
+  }
+});
+
+// Add this new endpoint for TV shows
 app.get('/api/tv/popular', async (req, res) => {
   try {
-    const response = await axios.get(
-      `https://api.themoviedb.org/3/tv/popular?api_key=${MOVIE_API_KEY}`
-    );
-    res.json(response.data.results);
+    const response = await tmdbAxios.get('/tv/popular');
+    res.json(response.data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error fetching popular TV shows:', error);
+    res.status(500).json({ error: 'Failed to fetch popular TV shows' });
   }
+});
+
+// Auth routes
+app.use('/api/auth', require('./routes/auth'));
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
