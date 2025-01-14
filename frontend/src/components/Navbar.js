@@ -54,7 +54,7 @@ function Navbar() {
               className="user-circle"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {user.name[0].toUpperCase()}
+              {user.name ? user.name[0].toUpperCase() : ''}
             </button>
             {isMenuOpen && (
               <div className="dropdown-menu">
