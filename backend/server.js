@@ -120,5 +120,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Something broke!" });
 });
 
+// Add this after the middleware setup and before the routes
+app.get("/", (req, res) => {
+  res.json({ message: "NextFlick API is running" });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
