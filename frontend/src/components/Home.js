@@ -39,6 +39,18 @@ function Home() {
         setError(error.message);
         setIsLoading(false);
       });
+
+    axios.get(`${API_BASE_URL}/api/tv/popular`)
+      .then(response => {
+        console.log('TV Shows data:', response.data);
+        setTvShows(response.data.results);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('TV Shows error:', error);
+        setError(error.message);
+        setIsLoading(false);
+      });
   }, []);
 
   if (isLoading) return <div>Loading...</div>;
