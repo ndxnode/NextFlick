@@ -1,26 +1,39 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-const auth = async (req, res, next) => {
+async function auth(req, res, next) {
   try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+    // Get token from Authorization header (preferred) or cookie
+    const token =
+      req.header("Authorization")?.replace("Bearer ", "") || req.cookies.token;
+
     if (!token) {
-      throw new Error();
+      return res.status(401).json({ message: "Authentication required" });
     }
 
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded.userId) {
+      return res.status(401).json({ message: "Invalid token format" });
+    }
+
+    // Fetch complete user object from database
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      throw new Error();
+      return res.status(401).json({ message: "User not found" });
     }
 
+    // Attach user object and token to request
     req.user = user;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Please authenticate' });
-  }
-};
+    req.token = token;
 
-module.exports = auth; 
+    next();
+  } catch (err) {
+    console.error("Auth middleware error:", err.message);
+    res.status(401).json({ message: "Invalid authentication token" });
+  }
+}
+
+module.exports = auth;
