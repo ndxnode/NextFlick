@@ -4,6 +4,11 @@
   padding: 1rem 2rem;
   background-color: #1a1a1a;
   color: white;
+  transition: background-color 0.2s ease;
+}
+
+.navbar:hover {
+  background-color: #000000;
 }
 
 .navbar-brand {
@@ -126,4 +131,4 @@ hr {
   margin: 0;
   border: none;
   border-top: 1px solid #eee;
-} 
+}

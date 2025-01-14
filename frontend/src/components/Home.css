@@ -1,5 +1,7 @@
 .home-container {
   padding: 2rem;
+  background-color: #1a1a1a;
+  min-height: calc(100vh - 70px);
 }
 
 .content-section {
@@ -8,7 +10,7 @@
 
 .content-section h2 {
   margin-bottom: 1rem;
-  color: #333;
+  color: white;
   padding-left: 1rem;
 }
 
@@ -28,10 +30,10 @@
 
 .content-card {
   flex: 0 0 200px;
-  background: white;
+  background: #242424;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
 }
 
@@ -49,7 +51,7 @@
   padding: 0.5rem;
   font-size: 1rem;
   text-align: center;
-  color: #333;
+  color: white;
 }
 
 .content-card a {
@@ -94,4 +96,4 @@
 
 .content-row::-webkit-scrollbar {
   display: none;
-} 
+}
