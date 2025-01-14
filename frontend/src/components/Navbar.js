@@ -35,6 +35,13 @@ function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const getInitials = (user) => {
+    if (!user) return '';
+    if (user.name) return user.name[0].toUpperCase();
+    if (user.firstName) return user.firstName[0].toUpperCase();
+    return '';
+  };
+
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">NextFlick</Link>
@@ -54,12 +61,14 @@ function Navbar() {
               className="user-circle"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {user.name[0].toUpperCase()}
+              {getInitials(user)}
             </button>
             {isMenuOpen && (
               <div className="dropdown-menu">
                 <div className="user-info">
-                  <span className="user-name">{user.name}</span>
+                  <span className="user-name">
+                    {user.name || `${user.firstName} ${user.lastName}`}
+                  </span>
                   <span className="user-email">{user.email}</span>
                 </div>
                 <hr />

@@ -46,6 +46,12 @@ router.post(
 
       await user.save();
 
+      // Create user object for response with name field
+      const userResponse = {
+        ...user.toObject(),
+        name: `${user.firstName} ${user.lastName}` // Add name field
+      };
+
       // Create and send JWT token
       const token = jwt.sign(
         { userId: user._id },
@@ -53,7 +59,7 @@ router.post(
         { expiresIn: '7d' }
       );
 
-      res.status(201).json({ user, token });
+      res.status(201).json({ user: userResponse, token });
     } catch (error) {
       console.error('Registration error:', error);
       if (error.name === 'ValidationError') {
