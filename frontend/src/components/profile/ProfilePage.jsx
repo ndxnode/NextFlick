@@ -19,18 +19,28 @@ export function ProfilePage() {
       try {
         setIsLoading(true);
         const data = await fetchProfile();
+        if (!data) {
+          throw new Error("No profile data received");
+        }
         setProfile(data);
         setError(null);
       } catch (err) {
-        setError("Failed to load profile. Please try again later.");
         console.error("Profile loading error:", err);
+        if (err.response?.status === 401) {
+          setError("Please log in to view your profile");
+          navigate("/login");
+        } else if (err.response?.status === 404) {
+          setError("Profile not found");
+        } else {
+          setError("Failed to load profile. Please try again later.");
+        }
       } finally {
         setIsLoading(false);
       }
     }
 
     loadProfile();
-  }, []);
+  }, [navigate]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div className="error-message">{error}</div>;
