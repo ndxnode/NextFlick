@@ -8,6 +8,32 @@ const api = axios.create({
   },
 });
 
+export const register = async (userData) => {
+  try {
+    const response = await api.post("/api/auth/register", {
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      gender: userData.gender,
+      email: userData.email,
+      password: userData.password,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Registration error:", error);
+    throw error.response?.data?.message || "Registration failed";
+  }
+};
+
+export const login = async (credentials) => {
+  try {
+    const response = await api.post("/api/auth/login", credentials);
+    return response.data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+};
+
 export async function fetchProfile() {
   try {
     const response = await api.get("/users/profile");

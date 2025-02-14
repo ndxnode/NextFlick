@@ -10,13 +10,17 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 app.use(express.json());
+
+// Routes
+const authRoutes = require("./routes/authRoutes");
+app.use("/api/auth", authRoutes);
 
 // Connect to MongoDB
 if (!process.env.MONGODB_URI) {
@@ -119,13 +123,11 @@ app.get("/api/tv/popular", async (req, res) => {
 });
 
 // Import routes
-const authRoutes = require("./routes/authRoutes");
 const movieRoutes = require("./routes/movieRoutes");
 const tvRoutes = require("./routes/tvRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 
 // Use routes
-app.use("/api/auth", authRoutes);
 app.use("/api/movies", movieRoutes);
 app.use("/api/tv", tvRoutes);
 app.use("/api/search", searchRoutes);

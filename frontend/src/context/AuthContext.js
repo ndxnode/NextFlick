@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { register as apiRegister, login as apiLogin } from "../utils/api";
 
 const AuthContext = createContext(null);
 
@@ -49,37 +50,21 @@ export const AuthProvider = ({ children }) => {
     setUser(data.user);
   };
 
-  const register = async (userData) => {
+  const register = async (firstName, lastName, gender, email, password) => {
     try {
-      console.log("Sending registration data:", userData);
-
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
+      const data = await apiRegister({
+        firstName,
+        lastName,
+        gender,
+        email,
+        password,
       });
-
-      console.log("Response status:", response.status);
-      const responseText = await response.text();
-      console.log("Raw response:", responseText);
-
-      const data = responseText ? JSON.parse(responseText) : {};
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
-        setUser(data.user);
-      }
-
+      localStorage.setItem("token", data.token);
+      setUser(data.user);
       return data;
     } catch (error) {
-      console.error("Registration error in context:", error);
-      throw error;
+      console.error("Registration error:", error);
+      throw new Error(error.message || "Registration failed");
     }
   };
 
