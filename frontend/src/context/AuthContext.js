@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 const AuthContext = createContext(null);
 
@@ -12,9 +12,9 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch("/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -23,59 +23,68 @@ export const AuthProvider = ({ children }) => {
           const userData = await response.json();
           setUser(userData);
         } else {
-          localStorage.removeItem('token');
+          localStorage.removeItem("token");
         }
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error("Auth check failed:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (email, password) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-    
+
     if (!response.ok) {
-      throw new Error('Login failed');
+      throw new Error("Login failed");
     }
-    
+
     const data = await response.json();
-    localStorage.setItem('token', data.token);
+    localStorage.setItem("token", data.token);
     setUser(data.user);
   };
 
-  const register = async (firstName, lastName, gender, email, password) => {
+  const register = async (userData) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      console.log("Sending registration data:", userData);
+
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ firstName, lastName, gender, email, password }),
+        body: JSON.stringify(userData),
       });
-      
+
+      console.log("Response status:", response.status);
+      const responseText = await response.text();
+      console.log("Raw response:", responseText);
+
+      const data = responseText ? JSON.parse(responseText) : {};
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || errorData.errors?.[0]?.msg || 'Registration failed');
+        throw new Error(data.message || "Registration failed");
       }
-      
-      const data = await response.json();
-      localStorage.setItem('token', data.token);
-      setUser(data.user);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+      }
+
+      return data;
     } catch (error) {
-      console.error('Registration error in context:', error);
+      console.error("Registration error in context:", error);
       throw error;
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
     setUser(null);
   };
 
@@ -86,4 +95,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => useContext(AuthContext);

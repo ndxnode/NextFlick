@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import './Navbar.css';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import "./Navbar.css";
 
 function Navbar() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -13,14 +13,15 @@ function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${searchQuery}`);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(""); // Clear the search input after searching
     }
   };
 
   const handleLogout = () => {
     logout();
     setIsMenuOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   // Close menu when clicking outside
@@ -31,28 +32,33 @@ function Navbar() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const getInitials = (user) => {
-    if (!user) return '';
+    if (!user) return "";
     if (user.name) return user.name[0].toUpperCase();
     if (user.firstName) return user.firstName[0].toUpperCase();
-    return '';
+    return "";
   };
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">NextFlick</Link>
+      <Link to="/" className="navbar-brand">
+        NextFlick
+      </Link>
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"
           placeholder="Search movies and TV shows..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          className="navbar-search-input"
         />
-        <button type="submit">Search</button>
+        <button type="submit" className="navbar-search-button">
+          Search
+        </button>
       </form>
       <div className="user-menu" ref={menuRef}>
         {user ? (
@@ -84,8 +90,12 @@ function Navbar() {
           </>
         ) : (
           <div className="auth-buttons">
-            <Link to="/login" className="login-btn">Login</Link>
-            <Link to="/register" className="register-btn">Register</Link>
+            <Link to="/login" className="login-btn">
+              Login
+            </Link>
+            <Link to="/register" className="register-btn">
+              Register
+            </Link>
           </div>
         )}
       </div>

@@ -12,41 +12,30 @@ function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    fetchInitialContent();
+  }, []);
+
+  const fetchInitialContent = async () => {
     setIsLoading(true);
     setError(null);
 
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "http://localhost:5001";
 
-    axios
-      .get(`${API_BASE_URL}/api/movies/popular`)
-      .then((response) => {
-        console.log("Movies data:", response.data);
-        setMovies(response.data.results);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Movies error:", error);
-        setError(error.message);
-        setIsLoading(false);
-      });
+    try {
+      const [moviesResponse, tvResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/api/movies/popular`),
+        axios.get(`${API_BASE_URL}/api/tv/popular`),
+      ]);
 
-    axios
-      .get(`${API_BASE_URL}/api/movies/top_rated`)
-      .then((response) => {
-        console.log("TV Shows data:", response.data);
-        setTvShows(response.data.results);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("TV Shows error:", error);
-        setError(error.message);
-        setIsLoading(false);
-      });
-  }, []);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!movies.length && !tvShows.length) return <div>No content available</div>;
+      setMovies(moviesResponse.data.results);
+      setTvShows(tvResponse.data.results);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching content:", error);
+      setError(error.message);
+      setIsLoading(false);
+    }
+  };
 
   const scroll = (direction, containerId) => {
     const container = document.getElementById(containerId);
@@ -74,6 +63,11 @@ function Home() {
                   alt={item.title || item.name}
                 />
                 <h3>{item.title || item.name}</h3>
+                {item.vote_average && (
+                  <div className="rating">
+                    ⭐ {item.vote_average.toFixed(1)}
+                  </div>
+                )}
               </Link>
             </div>
           ))}
@@ -87,6 +81,10 @@ function Home() {
       </div>
     </section>
   );
+
+  if (isLoading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
+  if (!movies.length && !tvShows.length) return <div>No content available</div>;
 
   return (
     <>

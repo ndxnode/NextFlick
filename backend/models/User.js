@@ -1,44 +1,44 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
+    required: [true, "First name is required"],
     trim: true,
   },
   lastName: {
     type: String,
-    required: true,
+    required: [true, "Last name is required"],
     trim: true,
   },
   dateOfBirth: {
     type: Date,
-    required: true,
+    required: false,
   },
   username: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
     trim: true,
     lowercase: true,
   },
   gender: {
     type: String,
-    required: true,
+    required: [true, "Gender is required"],
     enum: ["male", "female", "other"],
   },
   email: {
     type: String,
-    required: true,
+    required: [true, "Email is required"],
     unique: true,
     trim: true,
     lowercase: true,
-    match: [/\S+@\S+\.\S+/, "Invalid email format"],
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6,
+    required: [true, "Password is required"],
+    minlength: [6, "Password must be at least 6 characters"],
   },
   profilePicture: {
     type: String,
@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 

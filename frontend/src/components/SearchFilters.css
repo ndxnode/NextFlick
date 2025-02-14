@@ -1,0 +1,145 @@
+.search-filters-wrapper {
+  padding: 20px;
+  background-color: #242424;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.search-bar {
+  margin-bottom: 15px;
+}
+
+.search-input-container {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #1a1a1a;
+  border: 2px solid #333333;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: #666666;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.search-button,
+.filter-toggle-button {
+  padding: 0 24px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-toggle-button {
+  background-color: #2c3e50;
+}
+
+.filter-toggle-button:hover {
+  background-color: #34495e;
+}
+
+.filter-toggle-button.active {
+  background-color: #34495e;
+}
+
+.search-button:hover,
+.filter-toggle-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-button:active,
+.filter-toggle-button:active {
+  transform: translateY(0);
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+.search-button:active {
+  background-color: #004085;
+}
+
+.advanced-filters {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 0;
+}
+
+.advanced-filters.expanded {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 15px;
+}
+
+.filters-container {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-select,
+.filter-input {
+  padding: 8px 12px;
+  border: 1px solid #333333;
+  border-radius: 4px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  min-width: 120px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.filter-select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-input-container {
+    flex-direction: column;
+  }
+
+  .search-button,
+  .filter-toggle-button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .filters-container {
+    flex-direction: column;
+  }
+
+  .filter-select,
+  .filter-input {
+    width: 100%;
+  }
+}

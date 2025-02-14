@@ -8,17 +8,34 @@ const User = require("../models/User");
 // @access  Public
 exports.registerUser = async (req, res) => {
   try {
+    console.log("Received registration request body:", req.body);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log("Validation errors:", errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
     const { firstName, lastName, gender, email, password } = req.body;
 
+    // Add validation
+    if (!firstName || !lastName || !gender || !email || !password) {
+      console.log("Missing required fields:", {
+        firstName,
+        lastName,
+        gender,
+        email,
+        password: !!password,
+      });
+      return res
+        .status(400)
+        .json({ message: "Please provide all required fields" });
+    }
+
     // Check if user already exists
     let user = await User.findOne({ email });
     if (user) {
-      return res.status(400).json({ error: "User already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     // Create new user
@@ -28,6 +45,8 @@ exports.registerUser = async (req, res) => {
       gender,
       email,
       password,
+      // Generate a default username from email
+      username: email.split("@")[0],
     });
 
     // Hash password
@@ -36,10 +55,14 @@ exports.registerUser = async (req, res) => {
 
     await user.save();
 
-    // Create user object for response with name field
+    // Create user object for response
     const userResponse = {
-      ...user.toObject(),
-      name: `${user.firstName} ${user.lastName}`, // Add name field
+      id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      gender: user.gender,
+      name: `${user.firstName} ${user.lastName}`,
     };
 
     // Create and send JWT token
@@ -47,13 +70,22 @@ exports.registerUser = async (req, res) => {
       expiresIn: "7d",
     });
 
-    res.status(201).json({ user: userResponse, token });
+    const responseData = {
+      success: true,
+      token,
+      user: userResponse,
+    };
+
+    console.log("Sending response:", responseData);
+    return res.status(201).json(responseData);
   } catch (error) {
-    console.error("Registration error:", error);
+    console.error("Register error:", error);
     if (error.name === "ValidationError") {
-      return res.status(400).json({ error: error.message });
+      return res.status(400).json({ message: error.message });
     }
-    res.status(500).json({ error: "Server error", details: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
