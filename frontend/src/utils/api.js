@@ -36,7 +36,7 @@ export const login = async (credentials) => {
 
 export async function fetchProfile() {
   try {
-    const response = await api.get("/users/profile");
+    const response = await api.get("/api/users/profile");
     return response.data;
   } catch (error) {
     console.error("Profile fetch error:", error);
@@ -46,7 +46,7 @@ export async function fetchProfile() {
 
 export async function updateProfile(profileData) {
   try {
-    const response = await api.put("/users/profile", profileData);
+    const response = await api.patch("/api/users/profile", profileData);
     return response.data;
   } catch (error) {
     console.error("Profile update error:", error);
@@ -78,14 +78,44 @@ export async function updateProfilePicture(formData) {
   }
 }
 
-export async function getWatchlist() {
-  try {
-    const response = await api.get("/users/watchlist");
-    return response.data;
-  } catch (error) {
-    console.error("Watchlist fetch error:", error);
-    throw error;
-  }
-}
+// Watchlist API functions
+export const getWatchlist = async () => {
+  const response = await axios.get("/api/watchlist", { withCredentials: true });
+  return response.data;
+};
+
+export const addToWatchlist = async (mediaId, mediaType, status = "planning") => {
+  const response = await axios.post(
+    "/api/watchlist/items",
+    { mediaId, mediaType, status },
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const updateWatchlistItem = async (mediaId, updates) => {
+  const response = await axios.patch(
+    `/api/watchlist/items/${mediaId}`,
+    updates,
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const removeFromWatchlist = async (mediaId) => {
+  const response = await axios.delete(
+    `/api/watchlist/items/${mediaId}`,
+    { withCredentials: true }
+  );
+  return response.data;
+};
+
+export const getWatchlistByStatus = async (status) => {
+  const response = await axios.get(
+    `/api/watchlist/status/${status}`,
+    { withCredentials: true }
+  );
+  return response.data;
+};
 
 export default api;
